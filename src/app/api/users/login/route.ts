@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
 
     // check if user exist
     const user = await User.findOne({ email });
-    if (!user.isVerified) {
+    if (!user) {
       return NextResponse.json({
-        error: "please verify your email",
-        status: 400,
+        error: "User not found",
+        status: 404,
       });
     }
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json(
       { message: "login success", success: true },
-      { status: 200 }
+      { status: 200 },
     );
 
     // set token cookie
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     console.error("LOGIN ERROR:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
