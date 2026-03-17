@@ -1,32 +1,8 @@
-// "use client";
-// export const dynamic = "force-dynamic";
-
-// import { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useSearchParams } from "next/navigation";
-
-// export default function VerifyEmailPage() {
-//   const params = useSearchParams();
-//   const token = params.get("token");
-//   const [status, setStatus] = useState("Verifying...");
-
-//   useEffect(() => {
-//     if (!token) return;
-
-//     axios
-//       .post("/api/users/verify-email", { token })
-//       .then(() => setStatus("Email verified successfully 🎉"))
-//       .catch(() => setStatus("Verification failed ❌"));
-//   }, [token]);
-
-//   return <h1>{status}</h1>;
-// }
 "use client";
 
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useSearchParams } from "next/navigation";
 
 export default function VerifyEmailPage() {
@@ -37,24 +13,39 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (!token) {
-      setStatus("Invalid verification link ❌");
+      setStatus("Invalid verification link");
       return;
     }
 
-    const verify = async () => {
+    const verifyEmail = async () => {
       try {
-        await axios.post("/api/users/verify-email", { token });
+        const res = await fetch("/api/users/verify-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        if (!res.ok) throw new Error();
+
         setStatus("Email verified successfully 🎉");
-      } catch (error) {
+      } catch {
         setStatus("Verification failed ❌");
       }
     };
 
-    verify();
+    verifyEmail();
   }, [token]);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
+    <div
+      style={{
+        textAlign: "center",
+        marginTop: "100px",
+        fontSize: "24px",
+      }}
+    >
       <h1>{status}</h1>
     </div>
   );
