@@ -3,6 +3,7 @@ import User from "@/models/userModels";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { sendEmail } from "@/utils/sendEmail";
 
 connect();
 
@@ -38,6 +39,24 @@ export async function POST(request: NextRequest) {
     });
 
     const saveUser = await newUser.save();
+
+    const verifyUrl = `${process.env.DOMAIN}/verify-email?token=${verifyToken}`;
+
+    try {
+      await sendEmail({
+        to: saveUser.email,
+        subject: "Welcome! Account ceated 🎉",
+        html: `
+      <h2>Welcome ${saveUser.username}</h2>
+      <p>Your account was created successfully.</p>
+      <p>Please verify your email by clicking the link below:</p>
+      <a href="${verifyUrl}">Verify Email</a>
+      <p>This link expires in 24 hours.</p>
+    `,
+      });
+    } catch (emailError) {
+      console.error("EMAIL FAILED:", emailError);
+    }
 
     return NextResponse.json({
       message: "user created successfully",
